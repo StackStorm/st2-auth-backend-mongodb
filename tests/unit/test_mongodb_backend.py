@@ -15,12 +15,12 @@
 
 import sys
 
-import unittest2
+import unittest
 
 from st2auth_mongodb_backend.mongodb import MongoDBAuthenticationBackend
 
 
-class MongoDBAuthenticationBackendTestCase(unittest2.TestCase):
+class MongoDBAuthenticationBackendTestCase(unittest.TestCase):
     hash_function = MongoDBAuthenticationBackend._hash_function
     fixtures = [
         {
@@ -55,4 +55,4 @@ class MongoDBAuthenticationBackendTestCase(unittest2.TestCase):
         self.assertTrue(self._backend.authenticate(username='test1', password='testpassword'))
 
 if __name__ == '__main__':
-    sys.exit(unittest2.main())
+    sys.exit(unittest.main())
