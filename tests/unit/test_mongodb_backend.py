@@ -15,12 +15,12 @@
 
 import sys
 
-import unittest2
+import unittest
 
 from st2auth_mongodb_backend.mongodb import MongoDBAuthenticationBackend
 
 
-class MongoDBAuthenticationBackendTestCase(unittest2.TestCase):
+class MongoDBAuthenticationBackendTestCase(unittest.TestCase):
     hash_function = MongoDBAuthenticationBackend._hash_function
     fixtures = [
         {
@@ -34,15 +34,14 @@ class MongoDBAuthenticationBackendTestCase(unittest2.TestCase):
         self._backend = MongoDBAuthenticationBackend(db_name='st2authtest')
 
         # Clear database
-        self._backend._collection.remove()
+        self._backend._collection.delete_many({})
 
         # Add fixtures
-        for fixture in self.fixtures:
-            self._backend._collection.insert(fixture)
+        self._backend._collection.insert_many(self.fixtures)
 
     def tearDown(self):
         # Clear database
-        self._backend._collection.remove()
+        self._backend._collection.delete_many({})
 
     def test_authenticate(self):
         # Inexistent user
@@ -55,4 +54,4 @@ class MongoDBAuthenticationBackendTestCase(unittest2.TestCase):
         self.assertTrue(self._backend.authenticate(username='test1', password='testpassword'))
 
 if __name__ == '__main__':
-    sys.exit(unittest2.main())
+    sys.exit(unittest.main())
