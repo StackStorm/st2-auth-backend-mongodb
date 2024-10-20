@@ -42,7 +42,7 @@ class MongoDBAuthenticationBackend(object):
 
     _collection_name = 'users'
     _indexes = [
-        ('username', pymongo.ASCENDING)
+        pymongo.IndexModel([('username', pymongo.ASCENDING)], unique=True)
     ]
     _hash_function = hashlib.sha256
 
@@ -53,12 +53,17 @@ class MongoDBAuthenticationBackend(object):
         self._db_port = db_port
         self._db_username = db_username
         self._db_password = db_password
+        self._db_indexes_created = False
 
-        self._client = MongoClient(host=self._db_host, port=self._db_port, tz_aware=True)
-        self._db = self._client[db_name]
-
+        kwargs = {}
         if self._db_username:
-            self._db.authenticate(name=self._db_username, password=self._db_password)
+            kwargs["username"] = self._db_username
+            kwargs["password"] = self._db_password
+
+        self._client = MongoClient(
+            host=self._db_host, port=self._db_port, tz_aware=True, **kwargs
+        )
+        self._db = self._client[db_name]
 
         self._collection = self._db[self._collection_name]
         self._ensure_indexes()
@@ -87,4 +92,7 @@ class MongoDBAuthenticationBackend(object):
         pass
 
     def _ensure_indexes(self):
-        self._collection.ensure_index(self._indexes, unique=True)
+        if self._db_indexes_created:
+            return
+        self._collection.create_indexes(self._indexes)
+        self._db_indexes_created = True

@@ -34,15 +34,14 @@ class MongoDBAuthenticationBackendTestCase(unittest.TestCase):
         self._backend = MongoDBAuthenticationBackend(db_name='st2authtest')
 
         # Clear database
-        self._backend._collection.remove()
+        self._backend._collection.delete_many({})
 
         # Add fixtures
-        for fixture in self.fixtures:
-            self._backend._collection.insert(fixture)
+        self._backend._collection.insert_many(self.fixtures)
 
     def tearDown(self):
         # Clear database
-        self._backend._collection.remove()
+        self._backend._collection.delete_many({})
 
     def test_authenticate(self):
         # Inexistent user
